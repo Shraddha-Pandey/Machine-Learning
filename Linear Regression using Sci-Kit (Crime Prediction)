@@ -1,0 +1,35 @@
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import MinMaxScaler
+
+train_data = pd.read_csv("/kaggle/input/crime-prediction-b2-fall-inter-22-23/crime_train.csv")
+train_data.head(5)
+
+test_data = pd.read_csv("/kaggle/input/crime-prediction-b2-fall-inter-22-23/crime_test.csv")
+test_data.head(5)
+
+train_data.columns
+
+X_train = [train_data.columns[0:88]]
+
+y_train = train_data['ViolentCrimesPerPop']
+
+X_test = [test_data.columns[0:88]]
+
+model = LinearRegression()
+
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)output = pd.DataFrame({'ID': test_data.ID, 'Prediction': y_pred})
+output.to_csv('submission.csv', index=False)
+print("Your submission was successfully saved!")
+
+mm = MinMaxScaler()
+
+X_train1 = mm.fit_transform(X_train1)
+X_test1 = mm.fit_transform(X_test1)
+
+model.fit(X_train1, y_train1)
+
+y_pred1 = model.predict(X_test1)
