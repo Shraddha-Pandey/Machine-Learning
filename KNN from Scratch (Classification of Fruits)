@@ -1,0 +1,61 @@
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import math
+
+train_data = pd.read_csv("/kaggle/input/classify-fruits-fallinter-b2/fruits_train.csv")
+train_data.head()
+
+test_data = pd.read_csv("/kaggle/input/classify-fruits-fallinter-b2/fruits_test.csv")
+test_data.head()
+
+X = train_data[train_data.columns[1:4]]
+#X = train_data[['height', 'width', 'mass']]
+y = train_data['label']
+
+X.shape
+
+y.shape
+
+def minkowski_distance(a, b, p = 2):
+    n = len(a)
+    distance = 0
+    for i in range(n):
+        distance += abs(a[i]-b[i])**p
+    distance = distance ** (1/p)
+    
+    return distance
+    
+def euclidean_distance(x, y):
+    distance = math.sqrt(sum([(a-b) ** 2 for a,b in zip(x,y)]))
+    return distance
+
+test_data2 = test_data.drop(['Id'], axis = 1)
+
+#repeat for j=0-13
+distance = []
+j=0
+for i in X.index:
+    distance.append(euclidean_distance(X.iloc[i], test_data2.iloc[j]))
+training_data_distance = pd.DataFrame(distance, index = X.index, columns = ['Distance'])
+training_data_distance.head()
+
+df_nn = training_data_distance.sort_values(by=['Distance'], axis=0)[:7] #k=7
+df_nn
+
+df1 = pd.DataFrame(np.array(y[df_nn.index]), index = df_nn.index, columns = ['Labels'])
+df1
+
+majority_class = df1.groupby('Labels').agg(totCount = pd.NamedAgg(column="Labels", aggfunc="count"))
+majority_class
+
+y_test = majority_class.idxmax()[0]
+y_test
+
+y_pred = []
+
+y_pred.append(y_test)
+y_pred
+
+output = pd.DataFrame({'ID': test_data.Id, 'Category': y_pred})
+output.to_csv('submission.csv', index=False)
+print("Your submission was successfully saved!"
