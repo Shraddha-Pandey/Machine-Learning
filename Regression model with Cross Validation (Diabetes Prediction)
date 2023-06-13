@@ -1,0 +1,52 @@
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+from sklearn.model_selection import KFold
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score
+
+train_data = pd.read_csv("/kaggle/input/diabetes-progression-b2/train.csv")
+train_data.head()
+
+X = train_data[train_data.columns[0:11]]
+
+y = train_data[train_data.columns[11]]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.4, random_state = 0)
+
+cv = KFold(n_splits = 10, shuffle = False)
+
+model1 = LogisticRegression()
+
+accuracies = cross_val_score(estimator = model1, X = X_train, y = y_train, cv = 2)
+
+print(np.mean(accuracies), np.std(accuracies))
+
+model1.fit(X_train, y_train)
+
+print("Test accuracy : ", model1.score(X_test, y_test))
+
+model2 = LinearRegression()
+
+accuracies = cross_val_score(estimator = model2, X = X_train, y = y_train, cv = 2)
+
+model2.fit(X_train, y_train)
+
+print("Test accuracy : ", model2.score(X_test, y_test))
+
+X_train = train_data[train_data.columns[0:11]]
+
+y_train = train_data[train_data.columns[11]]
+
+test_data = pd.read_csv("/kaggle/input/diabetes-progression-b2/test.csv")
+
+X_test = test_data[test_data.columns[0:11]]
+
+model2.fit(X_train, y_train)
+
+y_test = model2.predict(X_test)
+
+output = pd.DataFrame({'ID': test_data.ID, 'y': y_test})
+output.to_csv('submission.csv', index=False)
+print("Your submission was successfully saved!")
