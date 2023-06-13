@@ -1,0 +1,57 @@
+#A part of the MNIST dataset is used as the training data here
+
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+
+train_data = pd.read_csv("/kaggle/input/handwritten-digit-identification/train.csv", header=None)
+train_data.head()
+
+X = train_data[train_data.columns[0:65]]
+X
+
+y = train_data[train_data.columns[65]]
+y
+
+X_train, X_test = X[:1143], X[1143:]
+y_train, y_test = y[:1143], y[1143:]
+
+model = MLPClassifier(hidden_layer_sizes=1000, max_iter=140, alpha=1e-3, solver='lbfgs', verbose=10, random_state=1, learning_rate_init=0.01)
+
+model.fit(X_train, y_train)
+
+y_preds = model.predict(X_test)
+y_preds
+
+print(accuracy_score(y_test, y_preds))
+
+test_data = pd.read_csv("/kaggle/input/handwritten-digit-identification/test.csv", header=None)
+test_data.head()
+
+X_test = test_data
+X_test.head()
+
+y_test = model.predict(X_test)
+y_test
+
+output = pd.DataFrame({'ID': test_data[0], 'Category': y_test})
+output.to_csv('submission.csv', index=False)
+print("Your submission was successfully saved!")
